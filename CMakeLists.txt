@@ -7,12 +7,16 @@ set(CMAKE_C_fLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror")
 # сама библиотека libft
 add_library(ft
         ft_memset.c
+        ft_bzero.c
+        ft_memcmp.c
         # другие файлы libft
 )
 
 # исполняемый файл с main
 add_executable(Libft
         main.c
+        ft_bzero.c
+        ft_memcmp.c
 )
 
 target_link_libraries(Libft PRIVATE ft)

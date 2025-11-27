@@ -13,7 +13,13 @@ int main(void) {
     ft_memset(a, 'X',10);
     memset(b, 'X', 10);
 
+
+
+    ft_bzero(a, 3);
     for (int i = 0; i < 10; i++) {
-    printf("%d: %c %c\n", i, a[i], b[i]);
-}
+        printf("%d: %c %c\n", i, a[i], b[i]);
+    }
+
+    int res = ft_memcmp(a,b,strlen(a));
+    printf("res: %d\n", res);
 }

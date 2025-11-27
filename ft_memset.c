@@ -5,11 +5,11 @@
 #include "libft.h"
 
 void *ft_memset(void *s, int value, size_t n) {
-    char *val = (char *) s;
+    unsigned char *val = (unsigned char *) s;
     size_t i = 0;
 
     while (i < n) {
-        val[i] = (char)value;
+        val[i] = (unsigned char)value;
         i++;
     }
 
