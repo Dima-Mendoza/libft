@@ -12,125 +12,126 @@
 #include <assert.h>
 #include <stdint.h>
 
-void *ft_memcpy(void *dest, const void *src, size_t n);
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 
-/* Вспомогательная функция: сравнить ft_memcpy с стандартной memcpy */
-static void test_case(const char *test_name,
-                      void *dest1, void *dest2,
-                      const void *src,
-                      size_t n)
+/*
+** Прототип твоей функции
+*/
+void *ft_memccpy(void *dest, const void *src, int c, size_t n);
+
+/*
+** Удобная функция для печати буфера
+*/
+static void print_buf(const char *label, const unsigned char *buf, size_t n)
 {
-    printf("== %s ==\n", test_name);
+    printf("%s: \"", label);
+    for (size_t i = 0; i < n; i++) {
+        unsigned char ch = buf[i];
+        if (ch >= 32 && ch <= 126)
+            printf("%c", ch);
+        else
+            printf("\\x%02X", ch);
+    }
+    printf("\"\n");
+}
 
-    // делаем копию исходника, чтобы обе функции читали одно и то же
-    unsigned char tmp_src[256];
-    assert(n <= sizeof(tmp_src));
-    memcpy(tmp_src, src, n);
+/*
+** Проверка одного тест-кейса: сравниваем результат ft_memccpy и memccpy
+*/
+static void run_test(
+    const char *test_name,
+    const unsigned char *src_init,
+    size_t buf_size,
+    int c,
+    size_t n
+)
+{
+    unsigned char *src1 = malloc(buf_size);
+    unsigned char *src2 = malloc(buf_size);
+    unsigned char *dst1 = malloc(buf_size);
+    unsigned char *dst2 = malloc(buf_size);
 
-    memcpy(dest1, tmp_src, n);
-    ft_memcpy(dest2, tmp_src, n);
-
-    int cmp = memcmp(dest1, dest2, n);
-    if (cmp != 0) {
-        printf("[FAIL] dest1 != dest2\n");
-        printf("  memcpy:   ");
-        for (size_t i = 0; i < n; ++i)
-            printf("%02X ", ((unsigned char *)dest1)[i]);
-        printf("\n  ft_memcpy:");
-        for (size_t i = 0; i < n; ++i)
-            printf("%02X ", ((unsigned char *)dest2)[i]);
-        printf("\n");
-    } else {
-        printf("[OK]\n");
+    if (!src1 || !src2 || !dst1 || !dst2) {
+        fprintf(stderr, "malloc failed\n");
+        exit(1);
     }
 
-    assert(cmp == 0);
-}
+    memcpy(src1, src_init, buf_size);
+    memcpy(src2, src_init, buf_size);
 
-/* Тест n == 0: ничего не должно меняться */
-static void test_zero_length(void)
-{
-    printf("== test_zero_length ==\n");
+    memset(dst1, 0xAA, buf_size); // заполняем мусором для наглядности
+    memset(dst2, 0xAA, buf_size);
 
-    char src[]  = "hello";
-    char dest1[] = "XXXXX";
-    char dest2[] = "XXXXX";
+    void *ret_std = memccpy(dst1, src1, c, n);
+    void *ret_ft  = ft_memccpy(dst2, src2, c, n);
 
-    memcpy(dest1, src, 0);
-    ft_memcpy(dest2, src, 0);
+    int equal = (memcmp(dst1, dst2, buf_size) == 0);
+    int same_ret = 0;
 
-    // буферы должны быть одинаковыми (ничего не копировалось)
-    assert(memcmp(dest1, dest2, sizeof(dest1)) == 0);
-    printf("[OK]\n");
-}
+    if (ret_std == NULL && ret_ft == NULL)
+        same_ret = 1;
+    else if (ret_std != NULL && ret_ft != NULL) {
+        // сравниваем смещение указателей от начала dest
+        ptrdiff_t off_std = (unsigned char *)ret_std - dst1;
+        ptrdiff_t off_ft  = (unsigned char *)ret_ft  - dst2;
+        same_ret = (off_std == off_ft);
+    }
 
-/* Тест строк */
-static void test_strings(void)
-{
-    char src[]   = "abcdef";
-    char dest1[16] = {0};
-    char dest2[16] = {0};
+    printf("=== %s ===\n", test_name);
+    printf("c = 0x%02X ('%c'), n = %zu, buf_size = %zu\n",
+           (unsigned char)c,
+           (c >= 32 && c <= 126) ? c : '.',
+           n, buf_size);
 
-    test_case("strings full copy", dest1, dest2, src, strlen(src) + 1);
+    print_buf("dst (std)", dst1, buf_size);
+    print_buf("dst ( ft)", dst2, buf_size);
 
-    // частичное копирование
-    memset(dest1, 0xAA, sizeof(dest1));
-    memset(dest2, 0xAA, sizeof(dest2));
-    test_case("strings partial copy", dest1, dest2, src, 3);
-}
+    printf("memcmp(dst_std, dst_ft) = %s\n", equal ? "OK" : "MISMATCH");
+    printf("return value           = %s\n", same_ret ? "OK" : "MISMATCH");
+    printf("\n");
 
-/* Тест бинарных данных с нулями */
-static void test_binary(void)
-{
-    uint8_t src[]  = {0x00, 0x01, 0xFF, 0x10, 0x00, 0x7F, 0x80, 0x55};
-    uint8_t dest1[8] = {0};
-    uint8_t dest2[8] = {0};
+    // Если хочешь жёсткие проверки — раскомментируй:
+    // assert(equal && same_ret);
 
-    test_case("binary data", dest1, dest2, src, sizeof(src));
-}
-
-/* Тест большого буфера */
-static void test_large(void)
-{
-    uint8_t src[128];
-    uint8_t dest1[128];
-    uint8_t dest2[128];
-
-    for (size_t i = 0; i < sizeof(src); ++i)
-        src[i] = (uint8_t)(i * 3 + 7);
-
-    test_case("large buffer", dest1, dest2, src, sizeof(src));
-}
-
-/* Перекрытие (overlap) — для memcpy это UB, но посмотрим расхождение */
-static void test_overlap_demo(void)
-{
-    printf("== overlap demo (UB для memcpy) ==\n");
-
-    char buf1[16] = "1234567890ABCD";
-    char buf2[16] = "1234567890ABCD";
-
-    // стандарт: UB, но часто ведёт себя предсказуемо
-    memcpy(buf1 + 2, buf1, 8);
-    ft_memcpy(buf2 + 2, buf2, 8);
-
-    printf("memcpy:    %s\n", buf1);
-    printf("ft_memcpy: %s\n", buf2);
-    printf("Разница здесь не считается багом стандарта, "
-           "так как overlap для memcpy — UB.\n\n");
+    free(src1);
+    free(src2);
+    free(dst1);
+    free(dst2);
 }
 
 int main(void)
 {
-    test_zero_length();
-    test_strings();
-    test_binary();
-    test_large();
-    test_overlap_demo();
+    const unsigned char src1[] = "Hello, World!";
+    const size_t len1 = sizeof(src1); // с '\0'
 
-    printf("All tests passed.\n");
+    // 1) Символ найден в середине
+    run_test("1) c = 'o', n = len1", src1, len1, 'o', len1);
+
+    // 2) Символ не найден
+    run_test("2) c = 'x' (нет в строке)", src1, len1, 'x', len1);
+
+    // 3) Символ — первый байт
+    run_test("3) c = 'H', первый байт", src1, len1, 'H', len1);
+
+    // 4) Символ — нулевой терминатор
+    run_test("4) c = '\\0'", src1, len1, '\0', len1);
+
+    // 5) Ограничение по n (символ есть, но дальше n)
+    run_test("5) ограниченный n, c за пределами n", src1, len1, 'W', 5);
+
+    // 6) n = 0 (ничего не копируется)
+    run_test("6) n = 0", src1, len1, 'H', 0);
+
+    // 7) Бинарные данные с нулевыми байтами
+    const unsigned char src_bin[] = {0x01, 0x00, 0x02, 0x03, 0x00, 0xFF};
+    run_test("7) бинарные данные, c = 0x00", src_bin, sizeof(src_bin), 0x00, sizeof(src_bin));
+
     return 0;
 }
+
 
 
 

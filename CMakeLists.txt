@@ -11,6 +11,7 @@ add_library(ft
         ft_memcmp.c
         ft_memmove.c
         memcpy.c
+        memccpy.c
         # другие файлы libft
 )
 
@@ -21,6 +22,7 @@ add_executable(Libft
         ft_memcmp.c
         ft_memmove.c
         memcpy.c
+        memccpy.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
