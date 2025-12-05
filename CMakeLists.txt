@@ -10,8 +10,9 @@ add_library(ft
         ft_bzero.c
         ft_memcmp.c
         ft_memmove.c
-        memcpy.c
-        memccpy.c
+        ft_memcpy.c
+        ft_memccpy.c
+        ft_memchr.c
         # другие файлы libft
 )
 
@@ -21,8 +22,9 @@ add_executable(Libft
         ft_bzero.c
         ft_memcmp.c
         ft_memmove.c
-        memcpy.c
-        memccpy.c
+        ft_memcpy.c
+        ft_memccpy.c
+        ft_memchr.c
 )
 
 target_link_libraries(Libft PRIVATE ft)

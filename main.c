@@ -102,35 +102,44 @@ static void run_test(
     free(dst2);
 }
 
-int main(void)
-{
-    const unsigned char src1[] = "Hello, World!";
-    const size_t len1 = sizeof(src1); // с '\0'
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-    // 1) Символ найден в середине
-    run_test("1) c = 'o', n = len1", src1, len1, 'o', len1);
+void *ft_memchr(const void *s, int c, size_t n);
 
-    // 2) Символ не найден
-    run_test("2) c = 'x' (нет в строке)", src1, len1, 'x', len1);
+static void test_case(const char *desc, const void *buf, int c, size_t n) {
+    void *std_res = memchr(buf, c, n);
+    void *ft_res  = ft_memchr(buf, c, n);
 
-    // 3) Символ — первый байт
-    run_test("3) c = 'H', первый байт", src1, len1, 'H', len1);
+    printf("%-35s | ", desc);
 
-    // 4) Символ — нулевой терминатор
-    run_test("4) c = '\\0'", src1, len1, '\0', len1);
+    if (std_res == ft_res)
+        printf("OK\n");
+    else
+        printf("FAIL (expected %p, got %p)\n", std_res, ft_res);
+}
 
-    // 5) Ограничение по n (символ есть, но дальше n)
-    run_test("5) ограниченный n, c за пределами n", src1, len1, 'W', 5);
+int main(void) {
+    char data1[] = "Hello world";
+    char data2[] = {0, 1, 2, 3, 4, 5};
+    char data3[] = "abcdef";
 
-    // 6) n = 0 (ничего не копируется)
-    run_test("6) n = 0", src1, len1, 'H', 0);
+    test_case("char in the middle", data1, 'o', 11);
+    test_case("char at start", data1, 'H', 11);
+    test_case("char at end", data1, 'd', 11);
+    test_case("char not found", data1, 'z', 11);
+    test_case("n = 0", data1, 'H', 0);
 
-    // 7) Бинарные данные с нулевыми байтами
-    const unsigned char src_bin[] = {0x01, 0x00, 0x02, 0x03, 0x00, 0xFF};
-    run_test("7) бинарные данные, c = 0x00", src_bin, sizeof(src_bin), 0x00, sizeof(src_bin));
+    test_case("search zero byte", data2, 0, 6);
+    test_case("byte > 127", data2, 200, 6);
+
+    test_case("short n", data3, 'e', 3);    // should NOT find
+    test_case("short n find", data3, 'c', 3); // should find
 
     return 0;
 }
+
 
 
 
