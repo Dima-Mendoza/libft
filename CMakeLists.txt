@@ -13,6 +13,9 @@ add_library(ft
         ft_memcpy.c
         ft_memccpy.c
         ft_memchr.c
+        ft_strlen.c
+        ft_strdup.c
+        ft_strcpy.c
         # другие файлы libft
 )
 
@@ -25,6 +28,9 @@ add_executable(Libft
         ft_memcpy.c
         ft_memccpy.c
         ft_memchr.c
+        ft_strlen.c
+        ft_strdup.c
+        ft_strcpy.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
