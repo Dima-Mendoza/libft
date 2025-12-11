@@ -19,6 +19,7 @@ add_library(ft
         ft_strncpy.c
         ft_strcat.c
         ft_strchr.c
+        ft_strrchr.c
         # другие файлы libft
 )
 
@@ -37,6 +38,7 @@ add_executable(Libft
         ft_strncpy.c
         ft_strcat.c
         ft_strchr.c
+        ft_strrchr.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
