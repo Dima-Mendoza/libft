@@ -8,76 +8,172 @@
 
 //////////////////////////
 
+/* tests_ft_strstr.c */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+char *ft_strstr(const char *haystack, const char *needle);
 
-#include <stdio.h>
-#include <string.h>
+static int g_ok = 0;
+static int g_fail = 0;
 
-#include <stdio.h>
-#include <string.h>
-
-#include <stdio.h>
-#include <string.h>
-
-char *ft_strrchr(const char *s, int c); // прототип тестируемой функции
-
-static void run_test(const char *s, int c, const char *name)
+static void check_ptr(const char *name, const char *h, const char *n)
 {
-    char *std_res = strrchr(s, c);
-    char *ft_res  = ft_strrchr(s, c);
+    char *exp = strstr(h, n);
+    char *got = ft_strstr(h, n);
 
-    if (std_res == ft_res) {
+    if (exp == got)
+    {
         printf("[OK]   %s\n", name);
-    } else {
+        g_ok++;
+    }
+    else
+    {
         printf("[FAIL] %s\n", name);
-        printf("       strrchr : %ld\n", std_res ? (long)(std_res - s) : -1L);
-        printf("       ft_strrchr: %ld\n", ft_res  ? (long)(ft_res  - s) : -1L);
+        printf("  haystack: \"%s\"\n", h);
+        printf("  needle:   \"%s\"\n", n);
+        printf("  expected: %p", (void *)exp);
+        if (exp) printf(" (\"%s\")", exp);
+        printf("\n");
+        printf("  got:      %p", (void *)got);
+        if (got) printf(" (\"%s\")", got);
+        printf("\n");
+        g_fail++;
+    }
+}
+
+static void check_offset(const char *name, const char *h, const char *n, ptrdiff_t off)
+{
+    char *got = ft_strstr(h, n);
+    char *exp = (off < 0) ? NULL : (char *)h + off;
+
+    if (got == exp)
+    {
+        printf("[OK]   %s\n", name);
+        g_ok++;
+    }
+    else
+    {
+        printf("[FAIL] %s\n", name);
+        printf("  haystack: \"%s\"\n", h);
+        printf("  needle:   \"%s\"\n", n);
+        printf("  expected: %p", (void *)exp);
+        if (exp) printf(" (offset %td)", off);
+        printf("\n");
+        printf("  got:      %p", (void *)got);
+        if (got) printf(" (offset %td)", got - (char *)h);
+        printf("\n");
+        g_fail++;
     }
 }
 
 int main(void)
 {
-    /* 1. Базовые случаи */
-    run_test("hello world", 'o', "basic: 'hello world', 'o'");
-    run_test("hello world", 'l', "basic: 'hello world', 'l'");
-    run_test("hello world", 'h', "basic: 'hello world', 'h'");
-    run_test("hello world", 'd', "basic: 'hello world', 'd'");
 
-    /* 2. Символ отсутствует */
-    run_test("hello", 'x', "no match: 'hello', 'x'");
+    /* add these to main() */
 
-    /* 3. Повторяющийся шаблон */
-    run_test("ababa", 'a', "pattern: 'ababa', 'a'");
-    run_test("ababa", 'b', "pattern: 'ababa', 'b'");
+check_ptr("poison: mississippi/issi",        "mississippi", "issi");
+check_ptr("poison: mississippi/issip",       "mississippi", "issip");
+check_ptr("poison: mississippi/sippi",       "mississippi", "sippi");
+check_ptr("poison: mississippi/pi",          "mississippi", "pi");
+check_ptr("poison: mississippi/mississippi", "mississippi", "mississippi");
+check_ptr("poison: mississippi/mississippia","mississippi", "mississippia");
 
-    /* 4. Поиск нуль-терминатора '\0' */
-    run_test("hello", '\0', "null-char: 'hello', '\\0'");
-    run_test("", '\0', "null-char: empty string, '\\0'");
+check_ptr("poison: aaaaa/aaa",   "aaaaa", "aaa");
+check_ptr("poison: aaaaa/aaaa",  "aaaaa", "aaaa");
+check_ptr("poison: aaaaa/aaaaa", "aaaaa", "aaaaa");
+check_ptr("poison: aaaaa/aaaaaa","aaaaa", "aaaaaa");
+check_ptr("poison: aaaaa/ba",    "aaaaa", "ba");
 
-    /* 5. Пустая строка и обычный символ */
-    run_test("", 'a', "empty: '', 'a'");
+check_ptr("poison: ababa/baba",  "ababa", "baba");
+check_ptr("poison: ababa/aba",   "ababa", "aba");
+check_ptr("poison: ababa/abab",  "ababa", "abab");
+check_ptr("poison: ababa/ababa", "ababa", "ababa");
+check_ptr("poison: abababa/babab", "abababa", "babab");
 
-    /* 6. Нестандартные байты */
-    {
-        const char buf[] = { 1, 2, (char)0xFF, 2, 0 };
-        run_test(buf, 0xFF, "bytes: {1,2,0xFF,2,0}, 0xFF");
-        run_test(buf, 2,    "bytes: {1,2,0xFF,2,0}, 2");
-    }
+check_ptr("poison: prefix clash 1", "aaaaab", "aaab");
+check_ptr("poison: prefix clash 2", "aaaabaaab", "aaab");
+check_ptr("poison: prefix clash 3", "aaacaab", "aab");
+check_ptr("poison: prefix clash 4", "abcxabcdabxabcdabcdabcy", "abcdabcy");
 
-    /* 7. Значение c > 255 */
-    run_test("A", 'A' + 256, "c > 255: 'A', 'A'+256");
+check_ptr("poison: ends with needle",   "abcxxx", "xxx");
+check_ptr("poison: near-end partial",   "abcxx",  "xxx");
+check_ptr("poison: needle at last char","abc", "c");
+check_ptr("poison: needle after null?", "abc", ""); /* should be haystack */
 
-    /* 8. Повторяющиеся символы в начале и конце */
-    run_test("xxx123x", 'x', "edges: 'xxx123x', 'x'");
+check_ptr("poison: spaces 1", "    ", "   ");
+check_ptr("poison: spaces 2", " a  a   a", "a   a");
+check_ptr("poison: tabs/newlines", "a\tb\nc\rd", "\tb\nc");
 
-    return 0;
+check_ptr("poison: punctuation 1", "--==--==--", "==--==");
+check_ptr("poison: punctuation 2", "[]{}()<>", "{}()");
+
+check_ptr("poison: digits 1", "000001000010000", "100001");
+check_ptr("poison: digits 2", "123451234512345", "51234");
+
+check_ptr("poison: long-ish repeat", "abababababababababab", "ababababab");
+check_ptr("poison: long-ish miss",   "abababababababababab", "abababababaX");
+
+check_ptr("poison: single-char haystack hit",  "a", "a");
+check_ptr("poison: single-char haystack miss", "a", "b");
+check_ptr("poison: empty haystack",            "", "a");
+check_ptr("poison: both empty",                "", "");
+
+check_ptr("poison: case-sensitive", "AaAaA", "aAa"); /* should NOT ignore case */
+
+/* if you want a stress case without malloc */
+check_ptr("poison: big homogenous",
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab");
+
+
+    check_ptr("poison: mississippi/issi", "mississippi", "issi");
+    check_ptr("poison: aaaaa/aaa", "aaaaa", "aaa");
+    check_ptr("poison: ababa/baba", "ababa", "baba");
+    check_ptr("poison: ends with needle", "abcxxx", "xxx");
+    check_ptr("poison: not found repeated", "aaaaa", "aaaaaa");
+
+    check_ptr("test - warranty", "aaab", "aab");
+    /* базовые */
+    check_ptr("basic: found at start",  "hello world", "hello");
+    check_ptr("basic: found in middle", "hello world", "world");
+    check_ptr("basic: not found",       "hello world", "planet");
+    check_ptr("basic: full match",      "abc", "abc");
+    check_ptr("basic: single char hit", "abc", "b");
+    check_ptr("basic: single char miss","abc", "x");
+
+    /* needle длиннее haystack */
+    check_ptr("needle longer", "ab", "abc");
+
+    /* пустые строки */
+    check_ptr("empty needle", "abc", "");
+    check_ptr("empty haystack", "", "a");
+    check_ptr("both empty", "", "");
+
+    /* повторяющиеся паттерны */
+    check_ptr("repeated: first occurrence", "aaaaa", "aa");
+    check_ptr("repeated: overlap",          "abababab", "abab");
+    check_ptr("repeated: late occurrence",  "zzzzabc", "abc");
+
+    /* символы и пробелы */
+    check_ptr("spaces", "a b  c   d", "  c");
+    check_ptr("punct",  "hi, there!", ", th");
+    check_ptr("digits", "id=12345;ok", "123");
+
+    /* совпадение ближе к концу */
+    check_ptr("near end", "xxxxxy", "y");
+    check_ptr("end substring", "abcde", "de");
+
+    /* точная проверка смещения (для наглядности) */
+    check_offset("offset: 'world' at 6", "hello world", "world", 6);
+    check_offset("offset: miss => NULL", "hello world", "zzz", -1);
+
+    printf("\nResult: OK=%d FAIL=%d\n", g_ok, g_fail);
+    return (g_fail == 0) ? 0 : 1;
 }
+
+
 
 
 
