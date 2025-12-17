@@ -14,100 +14,103 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-int ft_strncmp(const char *s1, const char *s2, size_t n);
+#include <stdio.h>
+#include <string.h>
 
-static int norm(int x) { return (x > 0) - (x < 0); }
 
-#define RUN_TEST(name, s1, s2, n) do {                                  \
-    int got = ft_strncmp((s1), (s2), (n));                               \
-    int ref = strncmp((s1), (s2), (n));                                  \
-    if (norm(got) != norm(ref)) {                                       \
-        printf("FAIL: %-28s | n=%zu | got=%d (norm=%d) ref=%d (norm=%d)\n", \
-               (name), (size_t)(n), got, norm(got), ref, norm(ref));    \
-        return 1;                                                       \
-    } else {                                                            \
-        printf("OK  : %-28s | n=%zu\n", (name), (size_t)(n));            \
-    }                                                                   \
-} while (0)
+
+// test_ft_strncat_vs_strncat.c
+// Компиляция: cc -Wall -Wextra -Werror test_ft_strncat_vs_strncat.c && ./a.out
+
+#include <stdio.h>
+#include <string.h>
+#include <stddef.h>
+
+char *ft_strncat(char *dst, const char *src, size_t ssize);
+
+static int run_case(const char *name,
+                    const char *dst_init,
+                    const char *src,
+                    size_t ssize)
+{
+    char a[128];
+    char b[128];
+
+    memset(a, 'X', sizeof(a));
+    memset(b, 'X', sizeof(b));
+    a[sizeof(a)-1] = '\0';
+    b[sizeof(b)-1] = '\0';
+    strncpy(a, dst_init, sizeof(a)-1);
+    strncpy(b, dst_init, sizeof(b)-1);
+
+
+    ft_strncat(a, src, ssize);
+    strncat(b, src, ssize);
+
+    if (memcmp(a, b, sizeof(a)) != 0) {
+        printf("[FAIL] %s\n", name);
+        printf("  dst_init=\"%s\"\n", dst_init);
+        printf("  src     =\"%s\"\n", src);
+        printf("  ssize   =%zu\n", ssize);
+        printf("  ft      =\"%s\"\n", a);
+        printf("  libc    =\"%s\"\n", b);
+        return 1;
+    }
+
+    printf("[OK]   %s\n", name);
+    return 0;
+}
 
 int main(void)
 {
-    // basic equality
-    RUN_TEST("equal_full", "hello", "hello", 10);
-    RUN_TEST("equal_n_short", "hello", "hello", 3);
+    int fails = 0;
 
-    // n == 0
-    RUN_TEST("n_zero_equal", "abc", "abc", 0);
-    RUN_TEST("n_zero_diff", "abc", "xyz", 0);
+    // базовые
+    fails += run_case("empty + abc, ssize=0",   "",      "abc", 0);
+    fails += run_case("empty + abc, ssize=1",   "",      "abc", 1);
+    fails += run_case("empty + abc, ssize=2",   "",      "abc", 2);
+    fails += run_case("empty + abc, ssize=3",   "",      "abc", 3);
+    fails += run_case("empty + abc, ssize=10",  "",      "abc", 10);
 
-    // first char differs
-    RUN_TEST("diff_first_char", "abc", "xbc", 5);
-    RUN_TEST("diff_first_char_n1", "abc", "xbc", 1);
+    fails += run_case("hi + 42, ssize=0",       "hi",    "42",  0);
+    fails += run_case("hi + 42, ssize=1",       "hi",    "42",  1);
+    fails += run_case("hi + 42, ssize=2",       "hi",    "42",  2);
+    fails += run_case("hi + 42, ssize=10",      "hi",    "42",  10);
 
-    // difference inside n
-    RUN_TEST("diff_middle", "abCdef", "abDdef", 6);
+    // пробелы/пунктуация
+    fails += run_case("a b +  c, ssize=4",      "a b",   " c",  4);
+    fails += run_case("path + /file, ssize=8",  "/usr",  "/bin", 8);
 
-    // difference after n (should be equal for first n chars)
-    RUN_TEST("diff_after_n", "abcdef", "abcXef", 3);
-    RUN_TEST("diff_after_n2", "abcdef", "abcXef", 4);
+    // длинный src, разные ssize
+    fails += run_case("x + long, ssize=1",      "x",     "0123456789", 1);
+    fails += run_case("x + long, ssize=5",      "x",     "0123456789", 5);
+    fails += run_case("x + long, ssize=20",     "x",     "0123456789", 20);
 
-    // prefix / shorter string cases (use padded arrays to stay safe)
-    {
-        char a[16] = "abc";
-        char b[16] = "abcd";
-        RUN_TEST("prefix_shorter_n3", a, b, 3);
-        RUN_TEST("prefix_shorter_n4", a, b, 4);
-        RUN_TEST("prefix_shorter_n10", a, b, 10);
+    // dst уже длинный
+    fails += run_case("long dst + z, ssize=1",  "0123456789012345", "z", 1);
+    fails += run_case("long dst + z, ssize=8",  "0123456789012345", "z", 8);
+    fails += run_case("long dst + z, ssize=32", "0123456789012345", "z", 32);
+
+    // src пустая
+    fails += run_case("dst + empty src, ssize=8", "hello", "", 8);
+
+    fails += run_case("no null terminator", "hi", "42", 2);
+    fails += run_case(
+    "no null-terminator when src >= ssize",
+    "hi",
+    "42",
+    2
+);
+    if (fails == 0) {
+        printf("ALL TESTS PASSED\n");
+        return 0;
+    } else {
+        printf("FAILED CASES: %d\n", fails);
+        return 1;
     }
-    {
-        char a[16] = "abcd";
-        char b[16] = "abc";
-        RUN_TEST("prefix_longer_n3", a, b, 3);
-        RUN_TEST("prefix_longer_n4", a, b, 4);
-        RUN_TEST("prefix_longer_n10", a, b, 10);
-    }
-
-    // empty strings
-    RUN_TEST("empty_empty", "", "", 5);
-    RUN_TEST("empty_vs_text", "", "a", 5);
-    RUN_TEST("text_vs_empty", "a", "", 5);
-
-    // stops on '\0' inside the buffer
-    {
-        char a[8] = {'a','b','\0','c','\0','X','Y','Z'};
-        char b[8] = {'a','b','\0','d','\0','X','Y','Z'};
-        RUN_TEST("embedded_nul_equal", a, b, 4);
-    }
-    {
-        char a[8] = {'a','\0','c','\0','X','Y','Z','W'};
-        char b[8] = {'a','b','c','\0','X','Y','Z','W'};
-        RUN_TEST("embedded_nul_diff", a, b, 3);
-    }
-
-    // signed/unsigned char behavior checks
-    {
-        char a[4] = {(char)0xFF, 'a', '\0', 0};
-        char b[4] = {(char)0x7F, 'a', '\0', 0};
-        RUN_TEST("high_bit_bytes_n1", a, b, 1);
-    }
-    {
-        char a[4] = {(char)0x80, '\0', 0, 0};
-        char b[4] = {(char)0x00, '\0', 0, 0};
-        RUN_TEST("high_bit_vs_zero", a, b, 1);
-    }
-
-    // large n with padding
-    {
-        char a[32] = "sameprefix";
-        char b[32] = "sameprefix";
-        a[10] = 'A';
-        b[10] = 'B';
-        RUN_TEST("large_n_padded", a, b, 20);
-    }
-
-    printf("All tests passed (sign-compatible with strncmp).\n");
-    return 0;
 }
+
+
 
 
 
