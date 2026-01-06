@@ -18,3 +18,4 @@ char *ft_strncat(char *dst, const char *src, size_t ssize);
 size_t ft_strlcat(char *dest, const char *src, size_t size);
 int ft_atoi(const char *nptr);
 int ft_isdigit(int c);
+int ft_isalpha(int c);
