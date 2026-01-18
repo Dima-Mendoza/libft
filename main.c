@@ -24,105 +24,43 @@
 
 
 
-int ft_atoi(const char *nptr) {
-    int result = 0;
+#include <stdio.h>
+#include <string.h>
 
-    size_t i = 0;
-    int isNegative = 0;
+#include <stdio.h>
+#include <stddef.h>
 
-    while (ft_isspace(nptr[i])) {i++;}
-    if (nptr[i] == '-' || nptr[i] == '+') {
-        if (nptr[i] == '-') isNegative = 1;
-        i++;
-    }
-    while (ft_isdigit(nptr[i])) {
-        result = result * 10 + nptr[i] - '0';
-        i++;
-    }
-    if (isNegative) return -result;
-    return result;
+void test(const char *big, const char *little, size_t len, int expect_null, size_t expect_offset)
+{
+    char *res = ft_strnstr(big, little, len);
 
+    if (expect_null)
+        printf("%s\n", res == NULL ? "OK" : "FAIL");
+    else
+        printf("%s\n", (res && res == big + expect_offset) ? "OK" : "FAIL");
+}
 
+int main(void)
+{
+    test("hello world", "world", 11, 0, 6);
+    test("hello world", "world", 7, 1, 0);
+    test("hello world", "hello", 5, 0, 0);
+    test("hello world", "hello", 4, 1, 0);
+    test("hello world", "", 11, 0, 0);
+    test("", "", 0, 0, 0);
+    test("", "a", 0, 1, 0);
+    test("aaaaa", "aaa", 5, 0, 0);
+    test("aaaaa", "aaa", 3, 0, 0);
+    test("abcabcabc", "abc", 9, 0, 0);
+    test("abcabcabc", "cab", 9, 0, 2);
+    test("abcabcabc", "abc", 2, 1, 0);
+    test("abcdef", "def", 6, 0, 3);
+    test("abcdef", "def", 5, 1, 0);
+    test("abcdef", "xyz", 6, 1, 0);
+    return 0;
 }
 
 
-/*
- * "Оракул" для ожидаемого поведения: как atoi/strtol.
- * - пропускает пробелы
- * - учитывает знак
- * - читает цифры до первой нецифры
- * - если цифр нет -> 0
- * - overflow/underflow мы тут НЕ обрабатываем как стандарт (strtol может clamp-ить),
- *   поэтому overflow-тесты лучше не использовать как строгие.
- */
-static int ref_atoi_like(const char *s) {
-    // Используем strtol: он корректно обрабатывает пробелы/знак/остановку на нецифре
-    // Но переполнение для int нужно отдельно учитывать — здесь просто приводим.
-    char *end = NULL;
-    long v = strtol(s, &end, 10);
-
-    // Если не было ни одной цифры, strtol вернёт 0 и end == s (после пробелов/знака)
-    // Это соответствует atoi-подобному ожиданию.
-    return (int)v;
-}
-
-static int g_total = 0;
-static int g_pass  = 0;
-
-static void run_case(const char *name, const char *input, int expected) {
-    g_total++;
-    int got = ft_atoi(input);
-    if (got == expected) {
-        g_pass++;
-        printf("[PASS] %-28s input=\"%s\" -> %d\n", name, input, got);
-    } else {
-        printf("[FAIL] %-28s input=\"%s\" -> got %d, expected %d\n",
-               name, input, got, expected);
-    }
-}
-
-static void run_case_ref(const char *name, const char *input) {
-    int expected = ref_atoi_like(input);
-    run_case(name, input, expected);
-}
-
-int main(void) {
-    puts("=== Basic digit-only cases (must pass for correct implementation) ===");
-    run_case_ref("zero", "0");
-    run_case_ref("single digit", "7");
-    run_case_ref("two digits", "42");
-    run_case_ref("leading zeros", "007");
-    run_case_ref("three digits", "123");
-    run_case_ref("ten", "10");
-    run_case_ref("ninety-nine", "99");
-    run_case_ref("hundred", "100");
-
-
-    puts("\n=== Standard atoi behavior cases (whitespace/sign/stop at non-digit) ===");
-    run_case_ref("leading spaces", "   42");
-    run_case_ref("plus sign", "+42");
-    run_case_ref("minus sign", "-42");
-    run_case_ref("spaces and minus", " \t\n-15");
-
-    run_case_ref("stop at letter", "123abc");
-    run_case_ref("stop after sign", "-12xyz");
-    run_case_ref("no digits", "abc");
-    run_case_ref("only sign", "+");
-    run_case_ref("empty string", "");
-
-    puts("\n=== Boundary-ish (no overflow here for int) ===");
-    run_case_ref("INT_MAX exact", "2147483647");
-    run_case_ref("INT_MIN exact", "-2147483648");
-
-    /*
-    puts("\n=== Overflow (undefined for atoi; enable only if you want to observe behavior) ===");
-    run_case_ref("overflow +", "2147483648");
-    run_case_ref("overflow -", "-2147483649");
-    */
-
-    printf("\nResult: %d/%d passed\n", g_pass, g_total);
-    return (g_pass == g_total) ? 0 : 1;
-}
 
 
 

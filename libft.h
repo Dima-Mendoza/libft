@@ -25,4 +25,5 @@ int ft_isprint(int c);
 int ft_tolower(int c);
 int ft_toupper(int c);
 int ft_isspace(int c);
+char *ft_strnstr(const char *big, const char *little, size_t len);
 
