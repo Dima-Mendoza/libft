@@ -27,3 +27,4 @@ int ft_toupper(int c);
 int ft_isspace(int c);
 char *ft_strnstr(const char *big, const char *little, size_t len);
 char *ft_strdup(const char *s);
+void ft_putchar(char c);

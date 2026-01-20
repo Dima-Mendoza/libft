@@ -28,6 +28,7 @@ add_library(ft
         ft_isdigit.c
         ft_isspace.c
         ft_strnstr.c
+        ft_putchar.c
         # другие файлы libft
 )
 
@@ -55,6 +56,7 @@ add_executable(Libft
         ft_isdigit.c
         ft_isspace.c
         ft_strnstr.c
+        ft_putchar.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
