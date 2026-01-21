@@ -29,6 +29,7 @@ add_library(ft
         ft_isspace.c
         ft_strnstr.c
         ft_putchar.c
+        ft_putstr.c
         # другие файлы libft
 )
 
@@ -57,6 +58,7 @@ add_executable(Libft
         ft_isspace.c
         ft_strnstr.c
         ft_putchar.c
+        ft_putstr.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
