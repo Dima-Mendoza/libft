@@ -36,4 +36,6 @@ void ft_putnbr(int n);
 void ft_putchar_fd(char c, int fd);
 void ft_putstr_fd(const char *s, int fd);
 void ft_putnbr_fd(int n, int fd);
+char *ft_strnew(size_t size);
+void ft_strdel(char **as);
 void ft_strclr(char *s);
