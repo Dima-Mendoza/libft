@@ -39,3 +39,4 @@ void ft_putnbr_fd(int n, int fd);
 char *ft_strnew(size_t size);
 void ft_strdel(char **as);
 void ft_strclr(char *s);
+int ft_strequ(char const *s1, char const *s2);

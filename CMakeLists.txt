@@ -39,6 +39,7 @@ add_library(ft
         ft_strnew.c
         ft_strclr.c
         ft_strdel.c
+        ft_strequ.c
         # другие файлы libft
 )
 
@@ -77,6 +78,7 @@ add_executable(Libft
         ft_strnew.c
         ft_strclr.c
         ft_strdel.c
+        ft_strequ.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
