@@ -37,6 +37,7 @@ add_library(ft
         ft_putendl_fd.c
         ft_putnbr_fd.c
         ft_strnew.c
+        ft_strclr.c
         # другие файлы libft
 )
 
@@ -73,6 +74,7 @@ add_executable(Libft
         ft_putendl_fd.c
         ft_putnbr_fd.c
         ft_strnew.c
+        ft_strclr.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
