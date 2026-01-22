@@ -43,6 +43,7 @@ add_library(ft
         ft_strnequ.c
         ft_strsub.c
         ft_strjoin.c
+        ft_strtrim.c
         # другие файлы libft
 )
 
