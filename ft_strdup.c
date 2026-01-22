@@ -1,8 +1,6 @@
 //
 // Created by Mendoza on 12/11/2025.
 //
-#include <stdlib.h>
-
 #include "libft.h"
 
 char *ft_strdup(const char *s) {
