@@ -46,6 +46,7 @@ add_library(ft
         ft_strtrim.c
         ft_strsplit.c
         ft_memalloc.c
+        ft_memdel.c
         # другие файлы libft
 )
 
@@ -90,6 +91,7 @@ add_executable(Libft
         ft_strjoin.c
         ft_strsplit.c
         ft_memalloc.c
+        ft_memdel.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
