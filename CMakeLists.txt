@@ -44,6 +44,8 @@ add_library(ft
         ft_strsub.c
         ft_strjoin.c
         ft_strtrim.c
+        ft_strsplit.c
+        ft_memalloc.c
         # другие файлы libft
 )
 
@@ -86,6 +88,8 @@ add_executable(Libft
         ft_strnequ.c
         ft_strsub.c
         ft_strjoin.c
+        ft_strsplit.c
+        ft_memalloc.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
