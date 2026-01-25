@@ -49,6 +49,8 @@ add_library(ft
         ft_memdel.c
         ft_striter.c
         ft_striteri.c
+        ft_strmap.c
+        ft_strmapi.c
         # другие файлы libft
 )
 
@@ -96,6 +98,8 @@ add_executable(Libft
         ft_memdel.c
         ft_striter.c
         ft_striteri.c
+        ft_strmap.c
+        ft_strmapi.c
 )
 
 target_link_libraries(Libft PRIVATE ft)
