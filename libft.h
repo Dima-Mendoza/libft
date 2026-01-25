@@ -47,3 +47,5 @@ char *ft_strjoin(char const *s1, char const *s2);
 char **ft_strsplit(char const *s, char c);
 void *ft_memalloc(size_t size);
 void ft_memdel(void **ap);
+void ft_striter(char *s, void (*f)(char *));
+void ft_striteri(char *s, void (*f)(unsigned int, char *));
