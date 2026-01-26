@@ -51,6 +51,11 @@ add_library(ft
         ft_striteri.c
         ft_strmap.c
         ft_strmapi.c
+        ft_itoa.c
+        ft_lstnew.c
+        ft_lstdelone.c
+        ft_lstiter.c
+        ft_lstmap.c
         # другие файлы libft
 )
 
@@ -100,6 +105,11 @@ add_executable(Libft
         ft_striteri.c
         ft_strmap.c
         ft_strmapi.c
+        ft_itoa.c
+        ft_lstnew.c
+        ft_lstdelone.c
+        ft_lstiter.c
+        ft_lstmap.c
 )
 
 target_link_libraries(Libft PRIVATE ft)

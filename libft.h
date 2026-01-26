@@ -2,6 +2,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+
+typedef struct		s_gnl
+{
+    char			*text;
+    char			*tempo;
+    struct s_gnl	*next;
+    int				fd;
+}					t_gnl;
+
+typedef struct		s_list
+{
+    void			*content;
+    size_t			content_size;
+    struct s_list	*next;
+}					t_list;
+
 void *ft_memset(void *s, int c, size_t n);
 void ft_bzero(void *s, size_t n);
 int ft_memcmp(const void *s1, const void *s2, size_t n);
@@ -51,3 +67,4 @@ void ft_striter(char *s, void (*f)(char *));
 void ft_striteri(char *s, void (*f)(unsigned int, char *));
 char *ft_strmap(char const *s, char (*f)(char));
 char *ft_strmapi(char const *s, char (*f)(unsigned int, char));
+char *ft_itoa(int n);
