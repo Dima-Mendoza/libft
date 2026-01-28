@@ -17,5 +17,5 @@ char *ft_strcat(char *s1, const char *s2) {
 
     p_s1[dest_len+i] = '\0';
 
-    return p_s1;
+    return (char *)p_s1;
 }

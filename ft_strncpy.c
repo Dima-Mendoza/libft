@@ -21,5 +21,5 @@ char *ft_strncpy(char *s1, const char *s2, size_t n) {
         ++i;
     }
 
-    return p_s1;
+    return (char *)p_s1;
 }

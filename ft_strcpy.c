@@ -5,7 +5,6 @@
 
 char *ft_strcpy(char *dst, const char *src) {
     unsigned char *p_dst = (unsigned char *)dst;
-    const unsigned char *p_src = (const unsigned char *)src;
 
     size_t i = 0;
     while (src[i] != '\0') {
